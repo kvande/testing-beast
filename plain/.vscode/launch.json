@@ -10,7 +10,7 @@
             "request": "launch",
             "program": "${workspaceFolder}/install/my-main.exe",
             "windows": {
-                "args": ["0.0.0.0", "8080", "../www"],
+                "args": ["0.0.0.0", "8080", "${workspaceFolder}/www"],
             },
             "args": ["my-main", "0.0.0.0", "8080", "."],
             "stopAtEntry": false,
