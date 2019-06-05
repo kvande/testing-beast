@@ -23,6 +23,7 @@
 #include <memory>
 #include <string>
 #include <thread>
+#include "./interpreters/post_interpreter.h"
 
 using tcp = boost::asio::ip::tcp;    // from <boost/asio/ip/tcp.hpp>
 namespace http = boost::beast::http; // from <boost/beast/http.hpp>
@@ -88,9 +89,7 @@ mime_type(boost::beast::string_view path)
 // Append an HTTP rel-path to a local filesystem path.
 // The returned path is normalized for the platform.
 std::string
-path_cat(
-    boost::beast::string_view base,
-    boost::beast::string_view path)
+path_cat(boost::beast::string_view base, boost::beast::string_view path)
 {
     if (base.empty())
         return path.to_string();
@@ -116,13 +115,9 @@ path_cat(
 // request. The type of the response object depends on the
 // contents of the request, so the interface requires the
 // caller to pass a generic lambda for receiving the response.
-template <
-    class Body, class Allocator,
-    class Send>
-void handle_request(
-    boost::beast::string_view doc_root,
-    http::request<Body, http::basic_fields<Allocator>> &&req,
-    Send &&send)
+template<class Body, class Allocator, class Send>
+void handle_request(boost::beast::string_view doc_root, http::request<Body,
+                    http::basic_fields<Allocator>> &&req, Send &&send)
 {
     // Returns a bad request response
     auto const bad_request =
@@ -162,8 +157,16 @@ void handle_request(
 
     // Make sure we can handle the method
     if (req.method() != http::verb::get &&
+        req.method() != http::verb::post &&
         req.method() != http::verb::head)
         return send(bad_request("Unknown HTTP-method"));
+
+
+    // ak: added post
+    if (req.method() == http::verb::post) {
+        Interpreters::PostInterpreter interpretor {req.target()};
+        auto interpreted = interpretor.interpret();
+    }
 
     // Request path must be absolute and not contain "..".
     if (req.target().empty() ||

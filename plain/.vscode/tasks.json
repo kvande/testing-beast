@@ -37,7 +37,8 @@
             },
             "dependsOn": ["Generate project"],
             "presentation": {              
-                "clear": false
+                "clear": false,
+                "showReuseMessage": false
             }
         },
     ]
