@@ -34,6 +34,5 @@ build/
 install/
 
 # for vs code only the ipch folder, keep the rest for convenience
-.vscode/ipch/
-
-
+vscode/ipch/
+plain/.vscode/ipch/

@@ -10,11 +10,11 @@
                 "cwd": "${workspaceFolder}"
             },
             "linux": {
-                "command": "cmake -B ./build  . -DCMAKE_BUILD_TYPE=Debug"
+                "command": "cmake -B ./build  . -D CMAKE_BUILD_TYPE=Debug"
             },
             "windows": {
-                "command": "cmake -B ./build  .",
-                //"command": "cmake .. -G 'Ninja ' -DCMAKE_BUILD_TYPE=Debug",     // for ninja builds
+                "command": "cmake -B ./build  . -DCMAKE_BUILD_TYPE=Debug -A x64",    // for vs build
+                //"command": "cmake -B ./build",     // for ninja builds
             },
             "group":  "build",
         },
@@ -37,7 +37,7 @@
             },
             "dependsOn": ["Generate project"],
             "presentation": {              
-                "clear": true
+                "clear": false
             }
         },
     ]
