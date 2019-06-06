@@ -257,7 +257,7 @@
 
 // // Handles an HTTP server connection
 // void do_session(
-//     tcp::socket &socket,
+//     tcp::socket &&socket,
 //     std::string const &doc_root)
 // {
 //     bool close = false;

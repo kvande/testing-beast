@@ -99,7 +99,9 @@ int main(int argc, char *argv[])
             // Block until we get a connection
             acceptor.accept(socket);
 
-            auto next = [](tcp::socket socket){
+            auto next = [](auto&& socket){
+                
+                handlers::request_handler req_handler {std::move(socket)};
                 
                 auto a {1};
                 auto b{a};
@@ -107,11 +109,7 @@ int main(int argc, char *argv[])
                 //return handlers::request_handler{};
             };
 
-            //std::thread(next());
-
-            // Launch the session, transferring ownership of the socket
-            //std::thread({std::bind(&do_session, std::move(socket))}).detach();
-
+            
 
             std::thread{next, std::move(socket)}.detach();
         }
