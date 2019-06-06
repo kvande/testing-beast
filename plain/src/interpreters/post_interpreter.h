@@ -4,11 +4,11 @@
 #include <boost/spirit/home/x3.hpp>
 #include <boost/beast/core.hpp>
 
-namespace Interpreters {
+namespace interpreters {
     using namespace std;
     using namespace std::string_literals;
 
-    class PostInterpreter {
+    class post_interpreter {
     
         string request;
         boost::beast::string_view r;
@@ -16,7 +16,7 @@ namespace Interpreters {
     public:
 
         // PostInterpreter(const string& request) : request(request) {}
-        PostInterpreter(const boost::beast::string_view& request) : r(request) {}
+        post_interpreter(const boost::beast::string_view& request) : r(request) {}
 
         std::string interpret() {
 
