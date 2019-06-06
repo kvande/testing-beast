@@ -16,60 +16,61 @@
 using tcp = boost::asio::ip::tcp;    // from <boost/asio/ip/tcp.hpp>
 namespace http = boost::beast::http; // from <boost/beast/http.hpp>
 
+// // Handles an HTTP server connection
+// void do_session(tcp::socket &socket)
+// {
+//     using namespace std;
 
+//     cout << "Recived request" << endl;
 
+//     bool close = false;
+//     boost::system::error_code ec;
 
-// Handles an HTTP server connection
-void do_session(tcp::socket &socket)
+//     // This buffer is required to persist across reads
+//     boost::beast::flat_buffer buffer;
+
+//     // This lambda is used to send messages
+//     // send_lambda<tcp::socket> lambda{socket, close, ec};
+
+//     // for (;;)
+//     // {
+//     //     // Read a request
+//     //     http::request<http::string_body> req;
+//     //     http::read(socket, buffer, req, ec);
+//     //     if (ec == http::error::end_of_stream)
+//     //         break;
+//     //     if (ec)
+//     //         return fail(ec, "read");
+
+//     //     // Send the response
+//     //     handle_request(doc_root, std::move(req), lambda);
+//     //     if (ec)
+//     //         return fail(ec, "write");
+//     //     if (close)
+//     //     {
+//     //         // This means we should close the connection, usually because
+//     //         // the response indicated the "Connection: close" semantic.
+//     //         break;
+//     //     }
+//     // }
+
+//     // Send a TCP shutdown
+//     socket.shutdown(tcp::socket::shutdown_send, ec);
+
+//     // At this point the connection is closed gracefully
+// }
+
+template <typename T, typename... Types>
+void print(T first_arg, Types... args)
 {
-    using namespace std;
-
-    cout << "Recived request" << endl;
-
-    bool close = false;
-    boost::system::error_code ec;
-
-
-
-
-    // This buffer is required to persist across reads
-    boost::beast::flat_buffer buffer;
-
-    // This lambda is used to send messages
-    // send_lambda<tcp::socket> lambda{socket, close, ec};
-
-    // for (;;)
-    // {
-    //     // Read a request
-    //     http::request<http::string_body> req;
-    //     http::read(socket, buffer, req, ec);
-    //     if (ec == http::error::end_of_stream)
-    //         break;
-    //     if (ec)
-    //         return fail(ec, "read");
-
-    //     // Send the response
-    //     handle_request(doc_root, std::move(req), lambda);
-    //     if (ec)
-    //         return fail(ec, "write");
-    //     if (close)
-    //     {
-    //         // This means we should close the connection, usually because
-    //         // the response indicated the "Connection: close" semantic.
-    //         break;
-    //     }
-    // }
-
-    // Send a TCP shutdown
-    socket.shutdown(tcp::socket::shutdown_send, ec);
-
-    // At this point the connection is closed gracefully
+    std::cout << first_arg << "\n";
+    print(args...);
 }
 
 int main(int argc, char *argv[])
 {
     using namespace std;
-    
+
     try
     {
         // Check command line arguments.
@@ -83,8 +84,7 @@ int main(int argc, char *argv[])
         auto const address = boost::asio::ip::make_address(argv[1]);
         auto const port = static_cast<unsigned short>(std::atoi(argv[2]));
 
-        cout <<"Up and running at: " << address << ":" << port << endl;
-        
+        cout << "Up and running at: " << address << ":" << port << endl;
 
         // The io_context is required for all I/O
         boost::asio::io_context ioc{1};
@@ -99,17 +99,17 @@ int main(int argc, char *argv[])
             // Block until we get a connection
             acceptor.accept(socket);
 
-            auto next = [](auto&& socket){
-                
-                handlers::request_handler req_handler {std::move(socket)};
-                
-                auto a {1};
-                auto b{a};
-                
-                //return handlers::request_handler{};
-            };
+            auto next = [](auto &&socket) {
+                handlers::request_handler req_handler{std::move(socket)};
+                auto &[verb, url, body, error_code] = req_handler.parse_request();
 
-            
+                // print some info about what is going on
+                cout << verb << "\n"
+                     << url << "\n"
+                     << body << endl;
+
+                socket.shutdown(tcp::socket::shutdown_send, error_code);
+            };
 
             std::thread{next, std::move(socket)}.detach();
         }
